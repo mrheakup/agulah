@@ -1,21 +1,42 @@
-# Шинэ хувилбар: package.json-ийн version-ийг нэмээд "v1.3.1" гэх мэт tag push хийнэ.
-# GitHub өөрөө Windows суулгагч бүтээж Releases-д тавина; суусан програмууд автоматаар шинэчлэгдэнэ.
+# Шинэ хувилбар: package.json-ийн "version"-ийг нэмээд main руу push хийнэ (эсвэл v1.3.1 гэх мэт tag push).
+# GitHub өөрөө Windows суулгагч бүтээж, v<version> tag-тай Release үүсгэнэ; суусан програмууд автоматаар шинэчлэгдэнэ.
 name: release
 on:
   push:
+    branches: [main]
+    paths: ['package.json', '.github/workflows/release.yml']
     tags: ['v*']
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
 jobs:
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Энэ хувилбарын release аль хэдийн байгаа эсэх
+        id: chk
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"; echo "v$V аль хэдийн гарсан — алгасна"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
+        if: steps.chk.outputs.exists != 'true'
         with:
           node-version: 20
       - run: npm ci
+        if: steps.chk.outputs.exists != 'true'
       - run: npx electron-builder --win nsis --publish always
+        if: steps.chk.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
