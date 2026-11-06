@@ -1,0 +1,21 @@
+# Шинэ хувилбар: package.json-ийн version-ийг нэмээд "v1.3.1" гэх мэт tag push хийнэ.
+# GitHub өөрөө Windows суулгагч бүтээж Releases-д тавина; суусан програмууд автоматаар шинэчлэгдэнэ.
+name: release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx electron-builder --win nsis --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

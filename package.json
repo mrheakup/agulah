@@ -1,0 +1,61 @@
+{
+  "name": "agulah",
+  "productName": "Агуулах",
+  "version": "1.3.0",
+  "description": "КЭЙ ЭЙЧ ИНТЕРНЭШНЬЛ ХХК — Агуулахын удирдлага",
+  "author": "Kh International",
+  "main": "main.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "release": "electron-builder --win nsis --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "31.7.7",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "mn.khinternational.agulah",
+    "productName": "Agulah",
+    "copyright": "Kh International",
+    "files": [
+      "main.js",
+      "preload.js",
+      "agulah.html",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Агуулах",
+      "artifactName": "Agulah-Setup-${version}.${ext}",
+      "installerLanguages": ["en_US"],
+      "deleteAppDataOnUninstall": false,
+      "uninstallDisplayName": "Агуулах"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "mrheakup",
+        "repo": "agulah",
+        "releaseType": "release"
+      }
+    ]
+  }
+}
